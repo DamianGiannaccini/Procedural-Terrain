@@ -6,7 +6,7 @@ const SIZE := 256.0
 @export_tool_button("Generate Terrain") var generate_button = update_mesh
 
 
-@export_range(4, 1024, 4) var resolution := 64:
+@export_range(4, 1024, 4) var resolution := 128:
 	set(new_resolution):
 		resolution = new_resolution
 		call_deferred("update_mesh")
@@ -18,13 +18,13 @@ const SIZE := 256.0
 		if noise:
 			noise.changed.connect(update_mesh)
 
-@export_range(4.0, 256.0, 4.0) var height := 64.0:
+@export_range(4.0, 256.0, 1.0) var height := 64.0:
 	set(new_height):
 		height = new_height
 		update_mesh()
 
 #Colors and Steepness settings
-@export var sand_color := Color.SANDY_BROWN:
+@export var sand_color := Color.from_rgba8(172, 99, 29, 255):
 	set(new_color):
 		sand_color = new_color
 		update_mesh()
@@ -34,13 +34,13 @@ const SIZE := 256.0
 		#sand_height = new_height
 		#update_mesh()
 
-@export var grass_color := Color.DARK_GREEN:
+@export var grass_color := Color.from_rgba8(0, 75, 0, 255):
 	set(new_color):
 		grass_color = new_color
 		update_mesh()
 
 
-@export var rock_color := Color.DIM_GRAY:
+@export var rock_color := Color.from_rgba8(68, 68, 68, 255):
 	set(new_color):
 		rock_color = new_color
 		update_mesh()
@@ -50,7 +50,7 @@ const SIZE := 256.0
 		#rock_steepness = new_steepness
 		#update_mesh()
 
-@export var snow_color := Color.GHOST_WHITE:
+@export var snow_color := Color.from_rgba8(248, 248, 255, 255):
 	set(new_color):
 		snow_color = new_color
 		update_mesh()
@@ -60,32 +60,32 @@ const SIZE := 256.0
 		#snow_height = new_height
 		#update_mesh()
 
-@export_range(-256.0, 256.0, 1.0) var snow_min := 50:
+@export_range(-256.0, 256.0, 1.0) var snow_min := 10:
 	set(new_height):
 		snow_min = new_height
 		update_mesh()
 
-@export_range(-256.0, 256.0, 1.0) var snow_full := 50:
+@export_range(-256.0, 256.0, 1.0) var snow_full := 20:
 	set(new_height):
 		snow_full = new_height
 		update_mesh()
 
-@export_range(-256.0, 256.0, 1.0) var sand_full := 50:
+@export_range(-256.0, 256.0, 1.0) var sand_full := -30:
 	set(new_height):
 		sand_full = new_height
 		update_mesh()
 
-@export_range(-256.0, 256.0, 1.0) var sand_max := 50:
+@export_range(-256.0, 256.0, 1.0) var sand_max := -20:
 	set(new_height):
 		sand_max = new_height
 		update_mesh()
 
-@export_range(0, 1.0, .01) var rock_min := 0.5:
+@export_range(0, 1.0, .01) var rock_min := 0.15:
 	set(new_height):
 		rock_min = new_height
 		update_mesh()
 
-@export_range(0, 1.0, 0.01) var rock_max := 0.5:
+@export_range(0, 1.0, 0.01) var rock_max := 0.25:
 	set(new_height):
 		rock_max = new_height
 		update_mesh()
@@ -140,7 +140,9 @@ func update_mesh():
 		var tangent := Vector3.RIGHT
 		
 		if noise:
-			vertex.y = get_height(vertex.x, vertex.z)
+			#pow 2 for high peaks and constant lows
+			#-1 * abs for mountain ranges
+			vertex.y = pow(get_height(vertex.x, vertex.z), 4)
 			#normal = get_normal(vertex_array[i].x, vertex_array[i].y)
 			tangent = normal.cross(Vector3.UP)
 		vertex_array[i] = vertex
